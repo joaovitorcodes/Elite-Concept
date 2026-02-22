@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Concept | Shadow Merchant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav>
+        <div class="nav-logo">ELITE SHADOW</div>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div class="nav-status">CONEXÃO SEGURA ATIVA</div>
+            <button class="btn-profile-toggle" onclick="toggleUserPanel()">[ PERFIL ]</button>
+        </div>
+    </nav>
+
+    <div id="userPanel" class="user-panel">
+        <div class="panel-header">
+            <span class="form-title" style="font-size: 1.2rem;">MEMBRO ELITE</span>
+            <button class="close-panel" onclick="toggleUserPanel()">[ FECHAR ]</button>
+        </div>
+        
+        <div class="panel-body">
+            <div class="cupom-section">
+                <label class="label">SEU CÓDIGO DE INDICAÇÃO</label>
+                <div class="cupom-display">
+                    <span id="userGeneratedCupom">GERANDO...</span>
+                </div>
+            </div>
+
+            <form id="profileSaveForm">
+                <div class="input-group">
+                    <label class="label">NOME COMPLETO</label>
+                    <input type="text" id="uName" placeholder="NOME DO MEMBRO" required>
+                </div>
+                <div class="input-group">
+                    <label class="label">E-MAIL</label>
+                    <input type="email" id="uEmail" placeholder="exemplo@email.com">
+                </div>
+                <div class="input-group">
+                    <label class="label">WHATSAPP / TELEFONE</label>
+                    <input type="tel" id="uTel" placeholder="(00) 00000-0000">
+                </div>
+                
+                <div class="row" style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px;">
+                    <div class="input-group">
+                        <label class="label">CEP</label>
+                        <input type="text" id="uCep" placeholder="00000-000">
+                    </div>
+                    <div class="input-group">
+                        <label class="label">Nº</label>
+                        <input type="text" id="uNum" placeholder="123">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="label">RUA / LOGRADOURO</label>
+                    <input type="text" id="uRua" placeholder="NOME DA RUA">
+                </div>
+
+                <button type="submit" class="btn-action" style="font-size: 10px; margin-top: 10px;">SALVAR DADOS NO PERFIL</button>
+            </form>
+        </div>
+    </div>
+
+    <header class="hero">
+        <h1>SHADOW MARKET.</h1>
+        <p class="hero-subtitle">NEGOCIAÇÕES DE ALTO NÍVEL</p>
+    </header>
+
+    <main class="container">
+        <div class="grid">
+            <div class="product-card">
+                <img src="img/img 01.jpg" alt="Kit">
+                <h2>Kit de Salgadinho e Doces</h2>
+                <p class="price">R$ 6,50</p>
+                <button class="btn-action" onclick="startOrder('Kit de Salgadinho e Doces', '6.50', 'img/img 01.jpg')">ADQUIRIR AGORA</button>
+            </div>
+            <div class="product-card">
+                <img src="img/img 02.jpg" alt="kit">
+                <h2>Kit de Doces</h2>
+                <p class="price">R$ 5.50</p>
+                <button class="btn-action" onclick="startOrder('Kit de Doces', '5.50', 'img/img 02.jpg')">ADQUIRIR AGORA</button>
+            </div>
+        </div>
+    </main>
+
+    <div id="loader" class="loading-screen">
+        <div class="loader-text">SINCRONIZANDO COM O MERCADOR...</div>
+        <div class="loader-bar-bg">
+            <div id="bar" class="loader-bar-fill"></div>
+        </div>
+    </div>
+
+    <div id="checkout">
+        <div class="checkout-grid">
+            <section class="form-area">
+                <div class="back-btn" onclick="cancelOrder()">[ VOLTAR AO MERCADO ]</div>
+                <h2 class="form-title">Dados de Envio</h2>
+
+                <form id="finalForm">
+                    <div class="input-group">
+                        <label class="label">COMO DEVEMOS CHAMÁ-LO?</label>
+                        <input type="text" id="fName" placeholder="NOME OU APELIDO" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="input-group">
+                            <label class="label">WHATSAPP PARA CONTATO</label>
+                            <input type="tel" id="fTel" placeholder="(00) 00000-0000" required>
+                        </div>
+                        <div class="input-group">
+                            <label class="label">CÓDIGO DE INDICAÇÃO / CUPOM</label>
+                            <input type="text" id="fCupom" placeholder="EX: AMIGO10 (OPCIONAL)">
+                        </div>
+                    </div>
+
+                    <div class="row cep-row">
+                        <div class="input-group">
+                            <label class="label">CEP DE DESTINO</label>
+                            <input type="text" id="fCep" placeholder="00000-000" maxlength="9" required>
+                            <span id="check" class="auto-status">✓ OK</span>
+                        </div>
+                        <div class="input-group">
+                            <label class="label">LOGRADOURO (RUA/AV)</label>
+                            <input type="text" id="fRua" placeholder="BUSCANDO..." required>
+                        </div>
+                    </div>
+
+                    <div class="row triple-row">
+                        <div class="input-group">
+                            <label class="label">BAIRRO</label>
+                            <input type="text" id="fBairro" placeholder="..." required>
+                        </div>
+                        <div class="input-group">
+                            <label class="label">CIDADE / UF</label>
+                            <input type="text" id="fCidade" placeholder="..." required>
+                        </div>
+                        <div class="input-group">
+                            <label class="label">Nº</label>
+                            <input type="text" id="fNum" placeholder="00" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="label">PREFERÊNCIA DE PAGAMENTO</label>
+                        <select id="fPay">
+                            <option>PIX</option>
+                            <option>CARTÃO</option>
+                            <option>DINHEIRO</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-action submit-btn">FINALIZAR PEDIDO NO WHATSAPP</button>
+                </form>
+            </section>
+
+            <aside class="summary-area">
+                <img id="fImg" src="" class="summary-img">
+                <h3 id="fTitle" class="summary-title">PRODUTO</h3>
+                
+                <div class="total-box">
+                    <div class="price-line"><span>SUBTOTAL</span><span id="fPrice">R$ 0,00</span></div>
+                    <div class="price-line highlight"><span>FRETE PRIORITÁRIO</span><span>R$ 0,00</span></div>
+                    <div class="total-line">
+                        <span>TOTAL</span>
+                        <span class="price-big" id="fTotal">R$ 0,00</span>
+                    </div>
+                </div>
+
+                <div class="security-footer">
+                    PEDIDO PROTEGIDO POR CRIPTOGRAFIA DE PONTA A PONTA.<br>
+                    NENHUM DADO FISCAL SENSÍVEL FOI SOLICITADO.
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
