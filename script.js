@@ -1,10 +1,10 @@
 let currentItem = {};
 
-// 1. Iniciar o processo de compra
+// 1. Iniciar o processo de compra (PUXANDO DADOS DO PERFIL)
 function startOrder(name, price, img) {
-    const basePrice = parseFloat(price.replace(',', '.'));
-    currentItem = { name, price: basePrice };
+    currentItem = {name, price};
     
+    // O SISTEMA PEGA AS INFORMAÇÕES DO PERFIL AQUI
     const profile = JSON.parse(localStorage.getItem('elite_account'));
     if (profile) {
         if(document.getElementById('fName')) document.getElementById('fName').value = profile.name || "";
@@ -12,6 +12,7 @@ function startOrder(name, price, img) {
         if(document.getElementById('fCep')) document.getElementById('fCep').value = profile.cep || "";
         if(document.getElementById('fRua')) document.getElementById('fRua').value = profile.rua || "";
         if(document.getElementById('fNum')) document.getElementById('fNum').value = profile.num || "";
+        if(document.getElementById('fCupom')) document.getElementById('fCupom').value = profile.cupom || "";
     }
 
     const loader = document.getElementById('loader');
@@ -26,10 +27,9 @@ function startOrder(name, price, img) {
         document.body.style.overflow = 'hidden';
         
         document.getElementById('fTitle').innerText = name;
+        document.getElementById('fPrice').innerText = 'R$ ' + price;
+        document.getElementById('fTotal').innerText = 'R$ ' + price;
         document.getElementById('fImg').src = img;
-
-        const currentCep = document.getElementById('fCep').value;
-        atualizarValores(currentCep);
 
         confetti({
             particleCount: 100,
@@ -40,62 +40,14 @@ function startOrder(name, price, img) {
     }, 1200);
 }
 
-// 2. Cálculo de Frete e Desconto (Privacidade Protegida)
-function atualizarValores(cepRaw) {
-    const cep = cepRaw.replace(/\D/g, '');
-    let taxaEntrega = 0;
-    let desconto = 0;
-    
-    // Lógica de Frete por Faixa de CEP (O usuário não vê sua localização)
-    if (cep.length === 8) {
-        // Ex: Faixa de CEP aproximada do Jardim Jacira e arredores de Itapecerica
-        if (cep.startsWith('06864') || cep.startsWith('06866') || cep.startsWith('06867')) {
-            taxaEntrega = 3.00; // Frete "Bairro Vizinho"
-        } 
-        // Restante de Itapecerica da Serra / Embu
-        else if (cep.startsWith('068')) {
-            taxaEntrega = 7.00;
-        }
-        // São Paulo Capital e Grande SP (Regiões 01 a 09)
-        else if (cep.startsWith('0')) {
-            taxaEntrega = 12.00;
-        }
-        // Outros estados
-        else {
-            taxaEntrega = 25.00;
-        }
-    }
-
-    // Lógica de Cupom: Reconhecer se o cupom é de outra pessoa
-    const cupomDigitado = document.getElementById('fCupom').value.trim().toUpperCase();
-    const profile = JSON.parse(localStorage.getItem('elite_account'));
-    const meuProprioCupom = profile ? profile.cupom : "";
-
-    // Se houver um cupom e ele NÃO for o meu, aplica desconto de indicação
-    if (cupomDigitado !== "" && cupomDigitado !== meuProprioCupom) {
-        desconto = 2.00; 
-    }
-
-    const valorBase = currentItem.price;
-    const totalFinal = (valorBase + taxaEntrega) - desconto;
-
-    // Atualiza a tela de resumo
-    document.getElementById('fPrice').innerText = `R$ ${valorBase.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-    
-    const freteElement = document.getElementById('fFrete');
-    if (freteElement) {
-        freteElement.innerText = `R$ ${taxaEntrega.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-    }
-
-    document.getElementById('fTotal').innerText = `R$ ${totalFinal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-}
-
-// 3. Funções de interface e Perfil
+// 2. Cancelar e fechar checkout
 function cancelOrder() {
     document.getElementById('checkout').style.display = 'none';
     document.body.style.overflow = 'auto';
     document.getElementById('bar').style.width = '0%';
 }
+
+// --- LOGICA DE PERFIL COM CAMPOS SEPARADOS ---
 
 function toggleUserPanel() {
     const panel = document.getElementById('userPanel');
@@ -122,9 +74,9 @@ function loadUserProfile() {
 document.getElementById('profileSaveForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const name = document.getElementById('uName').value;
-    const saved = JSON.parse(localStorage.getItem('elite_account')) || {};
     
-    // Gera um cupom único baseado no nome se não existir um
+    // Mantém o cupom antigo se já existir, senão gera um novo
+    const saved = JSON.parse(localStorage.getItem('elite_account')) || {};
     const firstName = name.split(' ')[0].toUpperCase() || "ELITE";
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     const finalCupom = saved.cupom || `${firstName}${randomSuffix}`;
@@ -144,7 +96,9 @@ document.getElementById('profileSaveForm').addEventListener('submit', function(e
     loadUserProfile();
 });
 
-// 4. Integração ViaCEP
+// --- FIM LOGICA DE PERFIL ---
+
+// 3. ViaCEP Checkout
 const cepInput = document.getElementById('fCep');
 cepInput.addEventListener('blur', async () => {
     const cep = cepInput.value.replace(/\D/g, '');
@@ -159,9 +113,6 @@ cepInput.addEventListener('blur', async () => {
             document.getElementById('fBairro').value = data.bairro;
             document.getElementById('fCidade').value = `${data.localidade} / ${data.uf}`;
             document.getElementById('check').style.opacity = '1';
-            
-            // Recalcula o frete ocultamente após validar o CEP
-            atualizarValores(cep);
             document.getElementById('fNum').focus();
         } else {
             alert("CEP não encontrado.");
@@ -171,43 +122,41 @@ cepInput.addEventListener('blur', async () => {
     }
 });
 
-document.getElementById('fCupom').addEventListener('input', function() {
-    atualizarValores(document.getElementById('fCep').value);
-});
-
-// 5. Envio Final (WhatsApp)
+// 4. Envio para o WhatsApp
 document.getElementById('finalForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const fone = "5511977194531"; 
     
     const nome = document.getElementById('fName').value;
-    const cupom = document.getElementById('fCupom').value.toUpperCase() || "NENHUM"; 
+    const tel = document.getElementById('fTel').value;
+    const cupom = document.getElementById('fCupom').value || "NENHUM"; 
     const rua = document.getElementById('fRua').value;
     const num = document.getElementById('fNum').value;
     const bairro = document.getElementById('fBairro').value;
     const cidade = document.getElementById('fCidade').value;
     const cep = document.getElementById('fCep').value;
     const pagamento = document.getElementById('fPay').value;
-    const totalTexto = document.getElementById('fTotal').innerText;
 
     const mensagem = `*NOVA ORDEM DE AQUISIÇÃO*
 ---------------------------------
 *PRODUTO:* ${currentItem.name}
-*TOTAL FINAL:* ${totalTexto}
+*VALOR:* R$ ${currentItem.price}
 ---------------------------------
 *CLIENTE:* ${nome}
-*CUPOM USADO:* ${cupom}
-*(Validar recompensa para o dono deste cupom)*
+*CONTATO:* ${tel}
+*CUPOM/INDICAÇÃO:* ${cupom}
 
-*ENDEREÇO:*
-${rua}, Nº ${num} - ${bairro}
-${cidade} | CEP: ${cep}
+*ENDEREÇO DE ENTREGA:*
+${rua}, Nº ${num}
+${bairro} - ${cidade}
+CEP: ${cep}
 
 *PAGAMENTO:* ${pagamento}
 ---------------------------------
-_Enviado via Elite Shadow Market_`;
+_O cliente aguarda validação do cupom e processamento._`;
 
-    window.location.href = `https://wa.me/${fone}?text=${encodeURIComponent(mensagem)}`;
+    const encodedMsg = encodeURIComponent(mensagem);
+    window.location.href = `https://wa.me/${fone}?text=${encodedMsg}`;
 });
 
 loadUserProfile();
