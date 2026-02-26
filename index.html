@@ -18,6 +18,7 @@
         </div>
     </nav>
 
+    <!-- 👤 PAINEL DO USUÁRIO -->
     <div id="userPanel" class="user-panel">
         <div class="panel-header">
             <span class="form-title" style="font-size: 1.2rem;">MEMBRO ELITE</span>
@@ -25,10 +26,21 @@
         </div>
         
         <div class="panel-body">
+            
+            <!-- SEÇÃO DE CUPOM COM BOTÕES GERAR, ALTERAR E COPIAR LINK -->
             <div class="cupom-section">
                 <label class="label">SEU CÓDIGO DE INDICAÇÃO</label>
                 <div class="cupom-display">
-                    <span id="userGeneratedCupom">GERANDO...</span>
+                    <span id="userGeneratedCupom">NENHUM CÓDIGO</span>
+                </div>
+                
+                <!-- BOTÕES DE AÇÃO DO CÓDIGO -->
+                <div style="display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap;">
+                    <button type="button" class="btn-action" style="font-size: 10px; flex: 1; padding: 10px;" onclick="generateCupom()">GERAR</button>
+                    
+                    <button type="button" class="btn-action" style="font-size: 10px; flex: 1; padding: 10px; background-color: #444;" onclick="changeCupom()">ALTERAR</button>
+                    
+                    <button type="button" class="btn-action" style="font-size: 10px; flex: 1; padding: 10px; background-color: #c5a059; color: black;" onclick="copyShareLink()">COPIAR LINK</button>
                 </div>
             </div>
 
@@ -67,11 +79,13 @@
         </div>
     </div>
 
+    <!-- 🌟 HERO AREA -->
     <header class="hero">
         <h1>SHADOW MARKET.</h1>
         <p class="hero-subtitle">NEGOCIAÇÕES DE ALTO NÍVEL</p>
     </header>
 
+    <!-- 🛍️ PRODUTOS -->
     <main class="container">
         <div class="grid">
             <div class="product-card">
@@ -89,6 +103,7 @@
         </div>
     </main>
 
+    <!-- ⏳ TELA DE CARREGAMENTO -->
     <div id="loader" class="loading-screen">
         <div class="loader-text">SINCRONIZANDO COM O MERCADOR...</div>
         <div class="loader-bar-bg">
@@ -96,6 +111,7 @@
         </div>
     </div>
 
+    <!-- 🛒 TELA DE CHECKOUT -->
     <div id="checkout">
         <div class="checkout-grid">
             <section class="form-area">
@@ -178,6 +194,51 @@
             </aside>
         </div>
     </div>
+
+    <!-- 🔐 PAINEL LOGIN ADMIN -->
+    <div id="adminLogin" class="user-panel">
+        <div class="panel-header">
+            <span class="form-title">ADMIN LOGIN</span>
+            <button class="close-panel" onclick="toggleAdminLogin()">[ FECHAR ]</button>
+        </div>
+
+        <div class="panel-body">
+            <div class="input-group">
+                <label class="label">USUÁRIO</label>
+                <input type="text" id="adminUser">
+            </div>
+
+            <div class="input-group">
+                <label class="label">SENHA</label>
+                <input type="password" id="adminPass">
+            </div>
+
+            <button class="btn-action" onclick="adminLogin()">ENTRAR</button>
+        </div>
+    </div>
+
+    <!-- 🛡️ PAINEL DADOS ADMIN -->
+    <div id="adminPanel" class="user-panel">
+        <div class="panel-header">
+            <span class="form-title">PAINEL ADMIN</span>
+            <button class="close-panel" onclick="toggleAdminPanel()">[ FECHAR ]</button>
+        </div>
+
+        <div class="panel-body">
+            <div class="cupom-section">
+                <label class="label">MEMBROS CADASTRADOS</label>
+                <div id="adminMembers"></div>
+            </div>
+
+            <div class="cupom-section">
+                <label class="label">RANKING DE INDICAÇÕES</label>
+                <div id="adminRanking"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTÃO FLUTUANTE ADMIN -->
+    <button class="btn-action" style="position:fixed;bottom:20px;left:20px;font-size:10px;z-index:9999;" onclick="toggleAdminLogin()">ADMIN</button>
 
     <script src="script.js"></script>
 </body>
