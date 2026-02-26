@@ -252,8 +252,8 @@ _O cliente aguarda validação do cupom e processamento._`;
 loadUserProfile();
 
 // 🔐 LOGIN ADMIN
-const ADMIN_USER = "admin";
-const ADMIN_PASS = "1234";
+const ADMIN_USER = "Mcjogador";
+const ADMIN_PASS = "OrrArdRdR_2024!";
 
 function toggleAdminLogin(){
     document.getElementById("adminLogin").classList.toggle("active");
@@ -299,3 +299,4 @@ function renderAdminData(){
         adminRanking.innerHTML = "SEM INDICAÇÕES AINDA";
     }
 }
+
